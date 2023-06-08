@@ -33,8 +33,7 @@ jobs:
           sec=$( echo "$sec_round * 6" | bc -l) #calc sec's
           echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
           IM=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-	  echo "IMAGE=$IM >> $GITHUB_ENV
-
+          echo "IMAGE=$IM >> $GITHUB_ENV
   health-check:
     needs: setup-and-build
     runs-on: ubuntu-latest
