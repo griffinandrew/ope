@@ -21,15 +21,17 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build
-        run: make build
-      
-      #- name: Run Job 1
-      #  run: |
-          # Run your custom YAML action here
-          # Replace the following line with your desired YAML action
-      #    echo "Running Job 1"
-      #    echo "Performing custom action..."
-      #    echo "Action completed."
+        run: |
+          start=$(date +%s) #start the timer
+          time make build --silent 
+          end=$(date +%s) #end timer
+          seconds=$((end-start))  #calc build time in sec
+          elapsed=$(echo "scale=2; ($end - $start) / 60.0" | bc) #get time in min with dec
+          min=${elapsed%.*}  #extract min part 
+          sec_cut=${elapsed#*.} #get the decimal 
+          sec_round="${sec_cut:0:1}.${sec_cut:1}"
+          sec=$( echo "$sec_round * 6" | bc -l) #calc sec's
+          echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
 
   health-check:
     needs: setup-and-build
@@ -130,5 +132,41 @@ jobs:
           tail -n +3 ./list.txt > temp.txt
           mv ./temp.txt ./list.txt #rewrite truncated list to file
           python3 ./version-check.py ./list.txt ./versions.txt #send to python for checking
+  
+  checksum:
+    needs: setup-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: run checksum #creates var with checksum value to be compared 
+        run: |
+          PERMISSIONS_CHECKSUM=$(make checksum)
+          SUM=$PERMISSIONS_CHECKSUM
+          QUICK_TRIM=${SUM::64} #quick_trim is used to get rid of the tailing "-" after the checksum
+          echo $QUICK_TRIM
+          CHECKSUM=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+          if [[ "$QUICK_TRIM" == "$CHECKSUM" ]]; then
+            echo "******SUCCESS********" 
+          else 
+            echo "*******FAILURE*******"
+            echo "image checksum: $QUICK_TRIM"
+            echo "correct checksum: $CHECKSUM"
+            exit 1
+          fi
 
-
+  size-time:
+    needs: setup-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: extract size and display time and size
+        run: |
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+          echo "$IMAGE"
+          docker run -d --name stable $IMAGE 
+          SIZE=$( docker images --format "{{.Size}}" $IMAGE ) #extract size from running image
+          echo ""
+          echo ""
+          cat ./time.txt #display calced time 
+          echo "" 
+          echo "IMAGE SIZE:  $SIZE" #display size in GB
+          echo ""
+          docker stop stable
