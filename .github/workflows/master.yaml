@@ -32,6 +32,8 @@ jobs:
           sec_round="${sec_cut:0:1}.${sec_cut:1}"
           sec=$( echo "$sec_round * 6" | bc -l) #calc sec's
           echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
+          IM=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+	  echo "IMAGE=$IM >> $GITHUB_ENV
 
   health-check:
     needs: setup-and-build
@@ -39,7 +41,7 @@ jobs:
     steps:
       - name: check-container-health
         run: |
-          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
+          #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
           docker run -d --name stable $IMAGE 
           sleep 7 #wait to start to check health
           CONTAINER_NAME="stable"
@@ -60,7 +62,7 @@ jobs:
     steps:
       - name: check-container-health
         run: |
-          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get just built image
+          #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get just built image
           docker run -d --name stable $IMAGE
           ID=$( docker ps -aqf "name=stable" )     #get id of image
           docker inspect $IMAGE > image.json #right inspect info to json for parsing
@@ -78,7 +80,7 @@ jobs:
     steps:
       - name: run container
         run: |
-          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+          #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           docker run -d -p 8888:8888 --name stable -v /test.ipynb:/home/jovyan/work $IMAGE
           #docker run -d -p 8888:8888 --name stable $IMAGE
           container_id=$(docker ps -qf "name=stable" | head -n 1)
@@ -159,7 +161,7 @@ jobs:
     steps:
       - name: extract size and display time and size
         run: |
-          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+          #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           echo "$IMAGE"
           docker run -d --name stable $IMAGE 
           SIZE=$( docker images --format "{{.Size}}" $IMAGE ) #extract size from running image
