@@ -1,0 +1,134 @@
+name: master test
+on:
+  push:
+    branches:
+      - base-ope-image
+
+jobs:
+  setup-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4 #use action to install python
+        with:
+          python-version: "3.9"
+      - name: Install dependencies #requirements docs unable to read, hard installing dependencies 
+        run: |
+          pip install -r requirements/requirements.txt     
+    
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: make build
+      
+      #- name: Run Job 1
+      #  run: |
+          # Run your custom YAML action here
+          # Replace the following line with your desired YAML action
+      #    echo "Running Job 1"
+      #    echo "Performing custom action..."
+      #    echo "Action completed."
+
+  health-check:
+    needs: setup-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: check-container-health
+        run: |
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
+          docker run -d --name stable $IMAGE 
+          sleep 7 #wait to start to check health
+          CONTAINER_NAME="stable"
+          HEALTH=$(docker ps --format "{{.Names}}: {{.Status}}" | grep "$CONTAINER_NAME" | awk '{print $2}') #extract health status
+          echo ""
+          if [[ "$HEALTH" == "Up" ]]; then
+          echo "HEALTHY : container is up and running"
+          else
+          echo "ERROR : container is not running"
+          exit -1
+          fi
+          echo ""
+          docker stop stable
+
+  image-version-check:
+    needs: setup-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: check-container-health
+        run: |
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get just built image
+          docker run -d --name stable $IMAGE
+          ID=$( docker ps -aqf "name=stable" )     #get id of image
+          docker inspect $IMAGE > image.json #right inspect info to json for parsing
+          REPO_TAG=$(jq -r '.[0].RepoTags[0]' image.json) #acquire tag
+          if [[ "$REPO_TAG" == "$IMAGE" ]]; then
+                echo "CORRECT IMAGE AND VERSION"
+          else
+                echo "INCORRECT IMAGE or VERSION, $REPO_TAG is not the proper image $IMAGE"
+                exit -1
+          fi
+
+  jupnb-test:
+    needs: setup-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: run container
+        run: |
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+          docker run -d -p 8888:8888 --name stable -v /test.ipynb:/home/jovyan/work $IMAGE
+          #docker run -d -p 8888:8888 --name stable $IMAGE
+          container_id=$(docker ps -qf "name=stable" | head -n 1)
+          docker cp tests/test.ipynb $container_id:/home/jovyan/work #mount test nb into container
+      - name: Wait for container to start
+        run: |
+          until docker exec stable jupyter lab --version; do sleep 1; done
+      - name: Execute Notebook
+        run: |
+          container_id=$(docker ps -qf "name=stable" | head -n 1)
+          echo $container_id
+          docker exec $container_id jupyter lab --generate-config
+          docker exec $container_id sh -c "echo 'c.NotebookApp.token = \"\"' >> /home/jovyan/.jupyter/jupyter_notebook_config.py" #create it without a token
+          docker exec $container_id jupyter labextension install @jupyter-widgets/jupyterlab-manager #install widgets
+          docker exec $container_id pip install nbclient
+          docker exec $container_id jupyter lab build --minimize=False
+          echo "running notebook"
+          docker exec $container_id jupyter execute /home/jovyan/work/test.ipynb >> ./output.txt
+          sleep 5
+          HEALTH=$(docker ps --format "{{.Names}}: {{.Status}}" | grep "stable" | awk '{print $2}')
+          docker ps -a
+          echo ""
+          if [[ "$HEALTH" == "Up" ]]; then
+          echo "container healthy"
+          else
+          echo ""
+          cat ./output.txt
+          exit -1
+          fi
+          echo ""
+          echo "************SUCCESS***********"
+      - name: Stop Docker container
+        run: docker stop stable
+
+
+
+  package-vers-test:
+    needs: setup-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout package versions
+        run: |
+          cp tests/version-check.py ./version-check.py #add python script to compare vers to this file 
+          cp tests/versions.txt ./versions.txt #add correct version list to compare against
+          chmod +x ./version-check.py # change perms to execute 
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get image name
+          docker run -d --name stable $IMAGE
+          sleep 7 # let properly start
+          ID=$( docker ps -aqf "name=stable" )
+          docker exec stable pip list >> ./list.txt #get rid of header for python comparison test
+          tail -n +3 ./list.txt > temp.txt
+          mv ./temp.txt ./list.txt #rewrite truncated list to file
+          python3 ./version-check.py ./list.txt ./versions.txt #send to python for checking
+
+
