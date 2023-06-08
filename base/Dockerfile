@@ -41,8 +41,9 @@ USER ${NB_UID}
 # sometimes there are problems with the existing version of installed python packages
 # these need to be installed to the prerequisite versions before we can install the rest of the
 # packages. Install Python 3 packages
-RUN mamba install --quiet --yes ${PYTHON_PREREQ_VERSIONS}  && \
-    mamba install --quiet --yes ${PYTHON_INSTALL_PACKAGES} && \
+RUN conda install --quiet --yes conda=23.3.1 python=3.9.16 --no-pin && \ 
+    conda install --quiet --yes ${PYTHON_PREREQ_VERSIONS}  && \
+    conda install --quiet --yes ${PYTHON_INSTALL_PACKAGES} && \
     pip install nbclient==0.5.13 && \
     pip install jupyterlab_rise && \
     fix-permissions "${CONDA_DIR}" && \
