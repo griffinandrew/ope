@@ -33,7 +33,9 @@ jobs:
           sec=$( echo "$sec_round * 6" | bc -l) #calc sec's
           echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
           IM=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-          echo "IMAGE=$IM >> $GITHUB_ENV
+          echo "IMAGE=$IM" >> $GITHUB_ENV
+          T=$( cat ./time.txt )
+          echo "TIME=$T" >> $GITHUB_ENV
   health-check:
     needs: setup-and-build
     runs-on: ubuntu-latest
@@ -166,7 +168,8 @@ jobs:
           SIZE=$( docker images --format "{{.Size}}" $IMAGE ) #extract size from running image
           echo ""
           echo ""
-          cat ./time.txt #display calced time 
+          $TIME
+          #cat ./time.txt #display calced time 
           echo "" 
           echo "IMAGE SIZE:  $SIZE" #display size in GB
           echo ""
