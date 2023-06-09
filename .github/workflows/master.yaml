@@ -33,20 +33,41 @@ jobs:
           sec=$( echo "$sec_round * 6" | bc -l) #calc sec's
           echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
           IM=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+          echo $IM > ./image.txt
           #echo "IMAGE=$IM" >> $GITHUB_ENV
-          echo "::set-output name=image::$IM"
+          #echo "::set-output name=image::$IM"
           #echo "::set-env name=IMAGE::$IM"
-          T=$( cat ./time.txt )
-          echo "::set-output name=build-time::$T"
+          #T=$( cat ./time.txt )
+          #echo "::set-output name=build-time::$T"
           #echo "::set-env name=TIME::$T"
+      - name: upload info
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-data
+          path: |
+            image.txt
+            time.txt
+
   health-check:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-data
+
+      - name: pull image
+        run: |
+          IMAGE=$(cat build-data/image.txt)
+          docker pull $IMAGE
+
       - name: check-container-health
         run: |
           #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
-          IMAGE=${{ needs.setup-and-build.outputs.image }}
+          #IMAGE=${{ needs.setup-and-build.outputs.image }}
+          #IMAGE=$(cat build-data/image.txt)
           echo $IMAGE
           docker run -d --name stable $IMAGE 
           sleep 7 #wait to start to check health
