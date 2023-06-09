@@ -16,7 +16,12 @@ jobs:
       - name: Install dependencies #requirements docs unable to read, hard installing dependencies 
         run: |
           pip install -r requirements/requirements.txt     
-    
+          cp tests/version-check.py ./version-check.py #add python script to compare vers to this file
+          cp tests/versions.txt ./versions.txt #add correct version list to compare against
+          cp tests/test.ipynb ./test.ipynb
+          chmod +x ./version-check.py # change perms to execute
+          chmod +x ./test.ipynb 
+      
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -32,18 +37,13 @@ jobs:
           sec_round="${sec_cut:0:1}.${sec_cut:1}"
           sec=$( echo "$sec_round * 6" | bc -l) #calc sec's
           echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
-          IM=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-          cp tests/version-check.py ./version-check.py #add python script to compare vers to this file
-          cp tests/versions.txt ./versions.txt #add correct version list to compare against
-          chmod +x ./version-check.py # change perms to execute
-          cp tests/test.ipynb ./test.ipynb
-          chmod +x ./test.ipynb
+      
       - name: upload info
         uses: actions/upload-artifact@v2
         with:
           name: build-data
           path: |
-            image.txt
+            #image.txt
             time.txt
             version-check.py
             versions.txt
@@ -67,7 +67,7 @@ jobs:
       - name: check-container-health
         run: |
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
-          echo $IMAGE
+          echo "image = $IMAGE "
           docker run -d --name stable $IMAGE 
           sleep 7 #wait to start to check health
           CONTAINER_NAME="stable"
@@ -101,6 +101,7 @@ jobs:
         run: |
           #IMAGE=${{ needs.setup-and-build.outputs.image }}
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get just built image
+          echo "IMAGE = $IMAGE"
           docker run -d --name stable $IMAGE
           ID=$( docker ps -aqf "name=stable" )     #get id of image
           docker inspect $IMAGE > image.json #right inspect info to json for parsing
