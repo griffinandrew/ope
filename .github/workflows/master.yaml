@@ -36,6 +36,8 @@ jobs:
           cp tests/version-check.py ./version-check.py #add python script to compare vers to this file
           cp tests/versions.txt ./versions.txt #add correct version list to compare against
           chmod +x ./version-check.py # change perms to execute
+          cp tests/test.ipynb ./test.ipynb
+          chmod +x ./test.ipynb
       - name: upload info
         uses: actions/upload-artifact@v2
         with:
@@ -45,6 +47,7 @@ jobs:
             time.txt
             version-check.py
             versions.txt
+            test.ipynb
 
   health-check:
     needs: setup-and-build
@@ -130,7 +133,7 @@ jobs:
           docker run -d -p 8888:8888 --name stable -v /test.ipynb:/home/jovyan/work $IMAGE
           #docker run -d -p 8888:8888 --name stable $IMAGE
           container_id=$(docker ps -qf "name=stable" | head -n 1)
-          docker cp tests/test.ipynb $container_id:/home/jovyan/work #mount test nb into container
+          docker cp build-data/test.ipynb $container_id:/home/jovyan/work #mount test nb into container
       - name: Wait for container to start
         run: |
           until docker exec stable jupyter lab --version; do sleep 1; done
