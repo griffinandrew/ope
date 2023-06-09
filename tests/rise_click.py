@@ -1,4 +1,5 @@
-from selenium import webdriver
+f
+om selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromiumService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.core.utils import ChromeType
@@ -6,6 +7,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 import platform
 import sys
+
+driver = webdriver.Chrome(ChromeDriverManager().install())
 
 if len(sys.argv) <= 1:
     print("Invalid number of arguments")
