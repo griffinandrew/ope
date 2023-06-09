@@ -37,7 +37,8 @@ jobs:
           sec_round="${sec_cut:0:1}.${sec_cut:1}"
           sec=$( echo "$sec_round * 6" | bc -l) #calc sec's
           echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
-      
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
+          echo "Image = $IMAGE"   
       - name: upload info
         uses: actions/upload-artifact@v2
         with:
