@@ -34,10 +34,11 @@ jobs:
           echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
           IM=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           #echo "IMAGE=$IM" >> $GITHUB_ENV
-          IM=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-          echo "::set-env name=IMAGE::$IM"
+          echo "::set-output name=image::$IM"
+          #echo "::set-env name=IMAGE::$IM"
           T=$( cat ./time.txt )
-          echo "::set-env name=TIME::$T"
+          echo "::set-output name=build-time::$T"
+          #echo "::set-env name=TIME::$T"
   health-check:
     needs: setup-and-build
     runs-on: ubuntu-latest
@@ -45,6 +46,8 @@ jobs:
       - name: check-container-health
         run: |
           #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
+          IMAGE=${{ needs.setup-and-build.outputs.image }}
+	  echo $IMAGE
           docker run -d --name stable $IMAGE 
           sleep 7 #wait to start to check health
           CONTAINER_NAME="stable"
@@ -65,6 +68,7 @@ jobs:
     steps:
       - name: check-container-health
         run: |
+          IMAGE=${{ needs.setup-and-build.outputs.image }}
           #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get just built image
           docker run -d --name stable $IMAGE
           ID=$( docker ps -aqf "name=stable" )     #get id of image
@@ -83,6 +87,7 @@ jobs:
     steps:
       - name: run container
         run: |
+          IMAGE=${{ needs.setup-and-build.outputs.image }}
           #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           docker run -d -p 8888:8888 --name stable -v /test.ipynb:/home/jovyan/work $IMAGE
           #docker run -d -p 8888:8888 --name stable $IMAGE
@@ -129,7 +134,8 @@ jobs:
           cp tests/version-check.py ./version-check.py #add python script to compare vers to this file 
           cp tests/versions.txt ./versions.txt #add correct version list to compare against
           chmod +x ./version-check.py # change perms to execute 
-          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get image name
+          #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get image name
+          IMAGE=${{ needs.setup-and-build.outputs.image }} 
           docker run -d --name stable $IMAGE
           sleep 7 # let properly start
           ID=$( docker ps -aqf "name=stable" )
@@ -164,6 +170,7 @@ jobs:
     steps:
       - name: extract size and display time and size
         run: |
+          IMAGE=${{ needs.setup-and-build.outputs.image }}
           #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           echo "$IMAGE"
           docker run -d --name stable $IMAGE 
