@@ -93,11 +93,13 @@ print("slideshow")
 
 #print("notes")
 
-first_slide = driver.find_element(By.XPATH, "//li[contains(@class, 'lm-CommandPalette-item') and @data-command='RISE:firstSlide']")
+#first_slide = driver.find_element(By.XPATH, "//li[contains(@class, 'lm-CommandPalette-item') and @data-command='RISE:firstSlide']")
 
-last_slide = driver.find_element(By.XPATH, "//li[contains(@class, 'lm-CommandPalette-item') and @data-command='RISE:lastSlide']")
+#last_slide = driver.find_element(By.XPATH, "//li[contains(@class, 'lm-CommandPalette-item') and @data-command='RISE:lastSlide']")
 
 show_config = driver.find_element(By.XPATH, "//li[contains(@class, 'lm-CommandPalette-item') and @data-command='RISE:show-configuration']")
+
+print("config")
 
 chlkbd_clear = driver.find_element(By.XPATH, "//li[contains(@class, 'lm-CommandPalette-item') and @data-command='RISE:chalkboard-clear']")
 
