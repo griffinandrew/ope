@@ -40,6 +40,9 @@ jobs:
           #T=$( cat ./time.txt )
           #echo "::set-output name=build-time::$T"
           #echo "::set-env name=TIME::$T"
+          cp tests/version-check.py ./version-check.py #add python script to compare vers to this file
+          cp tests/versions.txt ./versions.txt #add correct version list to compare against
+          chmod +x ./version-check.py # change perms to execute
       - name: upload info
         uses: actions/upload-artifact@v2
         with:
@@ -47,6 +50,8 @@ jobs:
           path: |
             image.txt
             time.txt
+            version-check.py
+            versions.txt
 
   health-check:
     needs: setup-and-build
@@ -65,7 +70,7 @@ jobs:
 
       - name: check-container-health
         run: |
-          #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
           #IMAGE=${{ needs.setup-and-build.outputs.image }}
           #IMAGE=$(cat build-data/image.txt)
           echo $IMAGE
@@ -87,10 +92,21 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-data
+          path: build-data
+      - name: pull image
+        run: |
+          IMAGE=$(cat build-data/image.txt)
+          docker pull $IMAGE
+
       - name: check-container-health
         run: |
-          IMAGE=${{ needs.setup-and-build.outputs.image }}
-          #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get just built image
+          #IMAGE=${{ needs.setup-and-build.outputs.image }}
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get just built image
           docker run -d --name stable $IMAGE
           ID=$( docker ps -aqf "name=stable" )     #get id of image
           docker inspect $IMAGE > image.json #right inspect info to json for parsing
@@ -106,10 +122,20 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-data
+          path: build-data
+      - name: pull image
+        run: |
+          IMAGE=$(cat build-data/image.txt)
+          docker pull $IMAGE
       - name: run container
         run: |
-          IMAGE=${{ needs.setup-and-build.outputs.image }}
-          #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+          #IMAGE=${{ needs.setup-and-build.outputs.image }}
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           docker run -d -p 8888:8888 --name stable -v /test.ipynb:/home/jovyan/work $IMAGE
           #docker run -d -p 8888:8888 --name stable $IMAGE
           container_id=$(docker ps -qf "name=stable" | head -n 1)
