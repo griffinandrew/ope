@@ -21,8 +21,8 @@ jobs:
           cp tests/test.ipynb ./test.ipynb
           chmod +x ./version-check.py # change perms to execute
           chmod +x ./test.ipynb 
-          cp tests/version-check.py build-data/version-check.py
-          cp tests/test.ipynb build-data/test.ipynb
+          #cp tests/version-check.py build-data/version-check.py
+          #cp tests/test.ipynb build-data/test.ipynb
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -45,10 +45,10 @@ jobs:
         with:
           name: build-data
           path: |
-            ./build-data/time.txt
-            ./build-data/version-check.py
-            ./build-data/versions.txt
-            ./build-data/test.ipynb
+            time.txt
+            version-check.py
+            versions.txt
+            test.ipynb
 
             #image.txt
             #./time.txt
