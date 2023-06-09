@@ -33,13 +33,6 @@ jobs:
           sec=$( echo "$sec_round * 6" | bc -l) #calc sec's
           echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
           IM=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-          echo $IM > ./image.txt
-          #echo "IMAGE=$IM" >> $GITHUB_ENV
-          #echo "::set-output name=image::$IM"
-          #echo "::set-env name=IMAGE::$IM"
-          #T=$( cat ./time.txt )
-          #echo "::set-output name=build-time::$T"
-          #echo "::set-env name=TIME::$T"
           cp tests/version-check.py ./version-check.py #add python script to compare vers to this file
           cp tests/versions.txt ./versions.txt #add correct version list to compare against
           chmod +x ./version-check.py # change perms to execute
@@ -63,16 +56,14 @@ jobs:
         with:
           name: build-data
           path: build-data
-      - name: pull image
-        run: |
-          IMAGE=$(cat build-data/image.txt)
-          docker pull $IMAGE
+      #- name: pull image
+        #run: |
+          #IMAGE=$(cat build-data/image.txt)
+          #docker pull $IMAGE
 
       - name: check-container-health
         run: |
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
-          #IMAGE=${{ needs.setup-and-build.outputs.image }}
-          #IMAGE=$(cat build-data/image.txt)
           echo $IMAGE
           docker run -d --name stable $IMAGE 
           sleep 7 #wait to start to check health
@@ -98,10 +89,10 @@ jobs:
         with:
           name: build-data
           path: build-data
-      - name: pull image
-        run: |
-          IMAGE=$(cat build-data/image.txt)
-          docker pull $IMAGE
+      #- name: pull image
+        #run: |
+          #IMAGE=$(cat build-data/image.txt)
+          #docker pull $IMAGE
 
       - name: check-container-health
         run: |
@@ -128,10 +119,10 @@ jobs:
         with:
           name: build-data
           path: build-data
-      - name: pull image
-        run: |
-          IMAGE=$(cat build-data/image.txt)
-          docker pull $IMAGE
+      #- name: pull image
+        #run: |
+          #IMAGE=$(cat build-data/image.txt)
+          #docker pull $IMAGE
       - name: run container
         run: |
           #IMAGE=${{ needs.setup-and-build.outputs.image }}
@@ -176,21 +167,29 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-data
+          path: build-data
       - name: checkout package versions
         run: |
-          cp tests/version-check.py ./version-check.py #add python script to compare vers to this file 
-          cp tests/versions.txt ./versions.txt #add correct version list to compare against
-          chmod +x ./version-check.py # change perms to execute 
-          #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get image name
-          IMAGE=${{ needs.setup-and-build.outputs.image }} 
+          VERS_PY=$(cat build-data/version-check.py)
+          VERS_TXT=$(cat build-data/versions.txt)
+          echo $VERS_PY $VERS_TXT
+          #cp tests/version-check.py ./version-check.py #add python script to compare vers to this file 
+          #cp tests/versions.txt ./versions.txt #add correct version list to compare against
+          #chmod +x ./version-check.py # change perms to execute 
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get image name
+          #IMAGE=${{ needs.setup-and-build.outputs.image }} 
           docker run -d --name stable $IMAGE
           sleep 7 # let properly start
           ID=$( docker ps -aqf "name=stable" )
           docker exec stable pip list >> ./list.txt #get rid of header for python comparison test
           tail -n +3 ./list.txt > temp.txt
           mv ./temp.txt ./list.txt #rewrite truncated list to file
-          python3 ./version-check.py ./list.txt ./versions.txt #send to python for checking
-  
+          python3 build-data/version-check.py ./list.txt build-data/versions.txt #send to python for checking
+          docker stop stable
   checksum:
     needs: setup-and-build
     runs-on: ubuntu-latest
@@ -215,17 +214,21 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-data
+          path: build-data
       - name: extract size and display time and size
         run: |
-          IMAGE=${{ needs.setup-and-build.outputs.image }}
-          #IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+          #IMAGE=${{ needs.setup-and-build.outputs.image }}
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           echo "$IMAGE"
           docker run -d --name stable $IMAGE 
           SIZE=$( docker images --format "{{.Size}}" $IMAGE ) #extract size from running image
           echo ""
           echo ""
-          $TIME
-          #cat ./time.txt #display calced time 
+          cat build-data/time.txt #display calced time
           echo "" 
           echo "IMAGE SIZE:  $SIZE" #display size in GB
           echo ""
