@@ -21,7 +21,8 @@ jobs:
           cp tests/test.ipynb ./test.ipynb
           chmod +x ./version-check.py # change perms to execute
           chmod +x ./test.ipynb 
-      
+          cp tests/version-check.py build-data/version-check.py
+          cp tests/test.ipynb build-data/test.ipynb
       - name: Checkout code
         uses: actions/checkout@v2
 
