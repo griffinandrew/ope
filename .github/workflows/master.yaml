@@ -57,7 +57,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-data
-
+          path: build-data
       - name: pull image
         run: |
           IMAGE=$(cat build-data/image.txt)
