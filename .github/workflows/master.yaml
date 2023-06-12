@@ -163,7 +163,8 @@ jobs:
       - name: run container
         run: |
           pip install jupytext
-          jupytext --to notebook test.txt
+          mv test.txt test.ipynb
+          jupytext --to notebook test.ipynb
           chmod +x  test.ipynb 
           #IMAGE=${{ needs.setup-and-build.outputs.image }}
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
