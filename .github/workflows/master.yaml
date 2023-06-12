@@ -255,7 +255,7 @@ jobs:
           name: checksum
       - name: run checksum #creates var with checksum value to be compared 
         run: |
-          PERMISSIONS_CHECKSUM=(cat checksum.txt)
+          PERMISSIONS_CHECKSUM=$(cat checksum.txt)
           SUM=$PERMISSIONS_CHECKSUM
           QUICK_TRIM=${SUM::64} #quick_trim is used to get rid of the tailing "-" after the checksum
           echo $QUICK_TRIM
