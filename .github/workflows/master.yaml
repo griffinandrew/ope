@@ -259,7 +259,7 @@ jobs:
           SUM=$PERMISSIONS_CHECKSUM
           QUICK_TRIM=${SUM::64} #quick_trim is used to get rid of the tailing "-" after the checksum
           echo $QUICK_TRIM
-          CHECKSUM=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+          CHECKSUM=ea84c0790d2cdd4474a960894895397b4c957e30ac05c22d39cd1098ecd393cb
           if [[ "$QUICK_TRIM" == "$CHECKSUM" ]]; then
             echo "******SUCCESS********" 
           else 
