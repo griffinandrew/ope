@@ -19,8 +19,11 @@ jobs:
           cp tests/version-check.py ./version-check.py #add python script to compare vers to this file
           cp tests/versions.txt ./versions.txt #add correct version list to compare against
           cp tests/test.ipynb ./test.ipynb
+          #cp tests/test.ipynb ./test.ipynb
           chmod +x ./version-check.py # change perms to execute
           chmod +x ./test.ipynb 
+          mv test.ipynb test.txt
+          mv version-check.py version-check.txt
           #cp tests/version-check.py build-data/version-check.py
           #cp tests/test.ipynb build-data/test.ipynb
       - name: Checkout code
@@ -46,9 +49,9 @@ jobs:
           name: build-data
           path: |
             time.txt
-            version-check.py
+            version-check.txt
             versions.txt
-            test.ipynb
+            test.txt
             #./time.txt
             #./version-check.py
             #./versions.txt
@@ -159,6 +162,9 @@ jobs:
           #docker pull $IMAGE
       - name: run container
         run: |
+          pip install jupytext
+          jupytext --to notebook test.txt
+          chmod +x  test.ipynb 
           #IMAGE=${{ needs.setup-and-build.outputs.image }}
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           #docker run -d -p 8888:8888 --name stable -v build-data/test.ipynb:/home/jovyan/work $IMAGE
@@ -216,9 +222,11 @@ jobs:
             #./test.ipynb
       - name: checkout package versions
         run: |
-          VERS_PY=$(cat version-check.py)
+          VERS_PY=$(cat version-check.txt)
           VERS_TXT=$(cat versions.txt)
           echo $VERS_PY $VERS_TXT
+          mv version-check.txt version-check.py
+          chmod +x version-check.py
           #cp tests/version-check.py ./version-check.py #add python script to compare vers to this file 
           #cp tests/versions.txt ./versions.txt #add correct version list to compare against
           #chmod +x ./version-check.py # change perms to execute 
