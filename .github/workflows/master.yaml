@@ -21,15 +21,15 @@ jobs:
           cp tests/test.ipynb ./test.ipynb
           chmod +x ./version-check.py # change perms to execute
           chmod +x ./test.ipynb 
-          mv ./test.ipynb ./test.txt
-          mv ./version-check.py ./version-check.txt
+          #mv ./test.ipynb ./test.txt
+          #mv ./version-check.py ./version-check.txt
           ls
       - name: upload vers-check
         uses: actions/upload-artifact@v2
         with:
           name: vers-check
           path: |
-            version-check.txt
+            version-check.py
 
       - name: upload vers.txt
         uses: actions/upload-artifact@v2
@@ -43,7 +43,7 @@ jobs:
         with:
           name: test
           path: |
-            test.txt
+            test.ipynb
             
       - name: Checkout code
         uses: actions/checkout@v2
@@ -77,27 +77,6 @@ jobs:
           name: time
           path: |
             time.txt
-
-      #- name: upload vers-check
-      #  uses: actions/upload-artifact@v2
-      #  with:
-      #    name: vers-check
-      #    path: |
-      #      version-check.txt
-
-      #- name: upload vers.txt
-      #  uses: actions/upload-artifact@v2
-      #  with:
-      #    name: vers
-      #    path: |
-      #      versions.txt
-
-      #- name: upload test
-      #  uses: actions/upload-artifact@v2
-      #  with:
-      #    name: test
-      #    path: |
-      #      test.txt
 
 
   health-check:
@@ -182,9 +161,6 @@ jobs:
           docker pull $IMAGE
       - name: run container
         run: |
-          pip install jupytext
-          mv test.txt test.ipynb
-          jupytext --to notebook test.ipynb
           chmod +x  test.ipynb 
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           docker run -d -p 8888:8888 --name stable $IMAGE
@@ -245,10 +221,9 @@ jobs:
           docker pull $IMAGE
       - name: checkout package versions
         run: |
-          VERS_PY=$(cat version-check.txt)
+          VERS_PY=$(cat version-check.py)
           VERS_TXT=$(cat versions.txt)
           echo $VERS_PY $VERS_TXT
-          mv version-check.txt version-check.py
           chmod +x version-check.py
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get image name
           docker run -d --name stable $IMAGE
