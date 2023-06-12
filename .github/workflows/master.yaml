@@ -19,14 +19,9 @@ jobs:
           cp tests/version-check.py ./version-check.py #add python script to compare vers to this file
           cp tests/versions.txt ./versions.txt #add correct version list to compare against
           cp tests/test.ipynb ./test.ipynb
-          #cp tests/test.ipynb ./test.ipynb
           chmod +x ./version-check.py # change perms to execute
           chmod +x ./test.ipynb 
-          mv ./test.ipynb ./test.txt
-          mv ./version-check.py ./version-check.txt
           ls
-          #cp tests/version-check.py build-data/version-check.py
-          #cp tests/test.ipynb build-data/test.ipynb
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -51,54 +46,35 @@ jobs:
           name: image
           path: |
             image.txt
-            time.txt
-            version-check.txt
-            versions.txt
-            test.txt
+
 
       - name: upload time
         uses: actions/upload-artifact@v2
         with:
           name: time
           path: |
-            #image.txt
             time.txt
-            version-check.txt
-            versions.txt
-            test.txt
 
       - name: upload vers-check
         uses: actions/upload-artifact@v2
         with:
           name: vers-check
           path: |
-            #image.txt
-            #time.txt
-            version-check.txt
-            versions.txt
-            test.txt
+            version-check.py
 
       - name: upload vers.txt
         uses: actions/upload-artifact@v2
         with:
           name: vers
           path: |
-            #image.txt
-            #time.txt
-            #version-check.txt
             versions.txt
-            test.txt
 
       - name: upload test
         uses: actions/upload-artifact@v2
         with:
           name: test
           path: |
-            #image.txt
-            #time.txt
-            #version-check.txt
-            #versions.txt
-            test.txt
+            test.ipynb
 
 
   health-check:
@@ -162,19 +138,11 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
-          name: time
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
           name: vers-check
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
           name: vers
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: test
       - name: pull image
         run: |
           IMAGE=$(cat image.txt)
@@ -182,7 +150,6 @@ jobs:
 
       - name: check-container-health
         run: |
-          #IMAGE=${{ needs.setup-and-build.outputs.image }}
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get just built image
           echo "IMAGE = $IMAGE"
           docker run -d --name stable $IMAGE
@@ -207,18 +174,6 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
-          name: time
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vers-check
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vers
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
           name: test
       - name: pull image
         run: |
@@ -227,12 +182,8 @@ jobs:
       - name: run container
         run: |
           pip install jupytext
-          mv test.txt test.ipynb
-          jupytext --to notebook test.ipynb
           chmod +x  test.ipynb 
-          #IMAGE=${{ needs.setup-and-build.outputs.image }}
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-          #docker run -d -p 8888:8888 --name stable -v build-data/test.ipynb:/home/jovyan/work $IMAGE
           docker run -d -p 8888:8888 --name stable $IMAGE
           container_id=$(docker ps -qf "name=stable" | head -n 1)
           docker cp test.ipynb $container_id:/home/jovyan/work #mount test nb into container
@@ -279,10 +230,6 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
-          name: time
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
           name: vers-check
       - name: Download artifacts
         uses: actions/download-artifact@v2
@@ -298,16 +245,11 @@ jobs:
           docker pull $IMAGE
       - name: checkout package versions
         run: |
-          VERS_PY=$(cat version-check.txt)
+          VERS_PY=$(cat version-check.py)
           VERS_TXT=$(cat versions.txt)
           echo $VERS_PY $VERS_TXT
-          mv version-check.txt version-check.py
           chmod +x version-check.py
-          #cp tests/version-check.py ./version-check.py #add python script to compare vers to this file 
-          #cp tests/versions.txt ./versions.txt #add correct version list to compare against
-          #chmod +x ./version-check.py # change perms to execute 
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get image name
-          #IMAGE=${{ needs.setup-and-build.outputs.image }} 
           docker run -d --name stable $IMAGE
           sleep 7 # let properly start
           ID=$( docker ps -aqf "name=stable" )
@@ -316,6 +258,7 @@ jobs:
           mv ./temp.txt ./list.txt #rewrite truncated list to file
           python3 version-check.py ./list.txt versions.txt #send to python for checking
           docker stop stable
+  
   checksum:
     needs: setup-and-build
     runs-on: ubuntu-latest
@@ -344,29 +287,19 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: image
+
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
           name: time
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vers-check
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vers
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: test
+
       - name: pull image
         run: |
           IMAGE=$(cat image.txt)
           docker pull $IMAGE 
+
       - name: extract size and display time and size
         run: |
-          #IMAGE=${{ needs.setup-and-build.outputs.image }}
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           echo "$IMAGE"
           docker run -d --name stable $IMAGE 
