@@ -24,6 +24,7 @@ jobs:
           chmod +x ./test.ipynb 
           mv ./test.ipynb ./test.txt
           mv ./version-check.py ./version-check.txt
+          ls
           #cp tests/version-check.py build-data/version-check.py
           #cp tests/test.ipynb build-data/test.ipynb
       - name: Checkout code
