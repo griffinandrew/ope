@@ -63,6 +63,8 @@ jobs:
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
           echo "Image = $IMAGE"
           echo $IMAGE > image.txt   
+          PERMISSIONS_CHECKSUM=$(make checksum)
+          echo $PERMISSIONS_CHECKSUM > checksum.txt
       - name: upload image
         uses: actions/upload-artifact@v2
         with:
@@ -77,6 +79,13 @@ jobs:
           name: time
           path: |
             time.txt
+      
+      - name: upload checksum
+        uses: actions/upload-artifact@v2
+        with:
+          name: checksum
+          path: |
+            checksum.txt
 
 
   health-check:
@@ -240,9 +249,13 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+      - name: Download checksum
+        uses: actions/download-artifact@v2
+        with:
+          name: checksum
       - name: run checksum #creates var with checksum value to be compared 
         run: |
-          PERMISSIONS_CHECKSUM=$(make -C tests checksum-test)
+          PERMISSIONS_CHECKSUM=(cat checksum.txt)
           SUM=$PERMISSIONS_CHECKSUM
           QUICK_TRIM=${SUM::64} #quick_trim is used to get rid of the tailing "-" after the checksum
           echo $QUICK_TRIM
