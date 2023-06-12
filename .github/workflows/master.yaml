@@ -49,10 +49,10 @@ jobs:
             version-check.py
             versions.txt
             test.ipynb
-            ./time.txt
-            ./version-check.py
-            ./versions.txt
-            ./test.ipynb
+            #./time.txt
+            #./version-check.py
+            #./versions.txt
+            #./test.ipynb
 
   health-check:
     needs: setup-and-build
@@ -63,15 +63,15 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-data
-          path: |
-            time.txt
-            version-check.py
-            versions.txt
-            test.ipynb
-            ./time.txt
-            ./version-check.py
-            ./versions.txt
-            ./test.ipynb
+          #path: |
+            #time.txt
+            #version-check.py
+            #versions.txt
+            #test.ipynb
+            #./time.txt
+            #./version-check.py
+            #./versions.txt
+            #./test.ipynb
       #- name: pull image
         #run: |
           #IMAGE=$(cat build-data/image.txt)
@@ -105,15 +105,15 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-data
-          path: |
-            time.txt
-            version-check.py
-            versions.txt
-            test.ipynb
-            ./time.txt
-            ./version-check.py
-            ./versions.txt
-            ./test.ipynb
+          #path: |
+            #time.txt
+            #version-check.py
+            #versions.txt
+            #test.ipynb
+            #./time.txt
+            #./version-check.py
+            #./versions.txt
+            #./test.ipynb
       #- name: pull image
         #run: |
           #IMAGE=$(cat build-data/image.txt)
@@ -144,15 +144,15 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-data
-          path: |
-            time.txt
-            version-check.py
-            versions.txt
-            test.ipynb
-            ./time.txt
-            ./version-check.py
-            ./versions.txt
-            ./test.ipynb
+          #path: |
+            #time.txt
+            #version-check.py
+            #versions.txt
+            #test.ipynb
+            #./time.txt
+            #./version-check.py
+            #./versions.txt
+            #./test.ipynb
       #- name: pull image
         #run: |
           #IMAGE=$(cat build-data/image.txt)
@@ -206,14 +206,14 @@ jobs:
         with:
           name: build-data
           path: |
-            time.txt
-            version-check.py
-            versions.txt
-            test.ipynb
-            ./time.txt
-            ./version-check.py
-            ./versions.txt
-            ./test.ipynb
+            #time.txt
+            #version-check.py
+            #versions.txt
+            #test.ipynb
+            #./time.txt
+            #./version-check.py
+            #./versions.txt
+            #./test.ipynb
       - name: checkout package versions
         run: |
           VERS_PY=$(cat build-data/version-check.py)
@@ -260,15 +260,15 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-data
-          path: |
-            time.txt
-            version-check.py
-            versions.txt
-            test.ipynb
-            ./time.txt
-            ./version-check.py
-            ./versions.txt
-            ./test.ipynb
+          #path: |
+            #time.txt
+            #version-check.py
+            #versions.txt
+            #test.ipynb
+            #./time.txt
+            #./version-check.py
+            #./versions.txt
+            #./test.ipynb
       - name: extract size and display time and size
         run: |
           #IMAGE=${{ needs.setup-and-build.outputs.image }}
