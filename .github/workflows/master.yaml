@@ -289,7 +289,7 @@ jobs:
         run: |
           IMAGE=$(cat image.txt)
           docker pull $IMAGE 
-     - name: extract size and display time and size
+      - name: extract size and display time and size
         run: |
           #IMAGE=${{ needs.setup-and-build.outputs.image }}
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
