@@ -163,7 +163,7 @@ jobs:
         run: |
           chmod +x test.ipynb 
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-          docker run -d -p 8888:8888 --name stable $IMAGE
+          docker run -d -p 8888:8888 --name stable -v /test.ipynb:/home/jovyan/work $IMAGE
           container_id=$(docker ps -qf "name=stable" | head -n 1)
           docker cp ./test.ipynb $container_id:/home/jovyan/work #mount test nb into container
       - name: Wait for container to start
