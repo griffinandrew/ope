@@ -45,15 +45,71 @@ jobs:
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
           echo "Image = $IMAGE"
           echo $IMAGE > image.txt   
-      - name: upload info
+      - name: upload image
         uses: actions/upload-artifact@v2
         with:
-          name: build-data
+          name: image
           path: |
             image.txt
             time.txt
             version-check.txt
             versions.txt
+            test.txt
+            #./time.txt
+            #./version-check.py
+            #./versions.txt
+            #./test.ipynb
+      - name: upload time
+        uses: actions/upload-artifact@v2
+        with:
+          name: time
+          path: |
+            #image.txt
+            time.txt
+            version-check.txt
+            versions.txt
+            test.txt
+            #./time.txt
+            #./version-check.py
+            #./versions.txt
+            #./test.ipynb
+      - name: upload vers-check
+        uses: actions/upload-artifact@v2
+        with:
+          name: vers-check
+          path: |
+            #image.txt
+            #time.txt
+            version-check.txt
+            versions.txt
+            test.txt
+            #./time.txt
+            #./version-check.py
+            #./versions.txt
+            #./test.ipynb
+      - name: upload vers.txt
+        uses: actions/upload-artifact@v2
+        with:
+          name: vers
+          path: |
+            #image.txt
+            #time.txt
+            #version-check.txt
+            versions.txt
+            test.txt
+            #./time.txt
+            #./version-check.py
+            #./versions.txt
+            #./test.ipynb
+      - name: upload test
+        uses: actions/upload-artifact@v2
+        with:
+          name: test
+          path: |
+            #image.txt
+            #time.txt
+            #version-check.txt
+            #versions.txt
             test.txt
             #./time.txt
             #./version-check.py
@@ -69,15 +125,23 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-data
-          #path: |
-            #time.txt
-            #version-check.py
-            #versions.txt
-            #test.ipynb
-            #./time.txt
-            #./version-check.py
-            #./versions.txt
-            #./test.ipynb
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: time
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vers-check
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vers
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: test
+
       - name: pull image
         run: |
           IMAGE=$(cat image.txt)
@@ -106,20 +170,26 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
-
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
           name: build-data
-          #path: |
-            #time.txt
-            #version-check.py
-            #versions.txt
-            #test.ipynb
-            #./time.txt
-            #./version-check.py
-            #./versions.txt
-            #./test.ipynb
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: time
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vers-check
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vers
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: test
       - name: pull image
         run: |
           IMAGE=$(cat image.txt)
@@ -145,20 +215,26 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
-
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
           name: build-data
-          #path: |
-            #time.txt
-            #version-check.py
-            #versions.txt
-            #test.ipynb
-            #./time.txt
-            #./version-check.py
-            #./versions.txt
-            #./test.ipynb
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: time
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vers-check
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vers
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: test
       - name: pull image
         run: |
           IMAGE=$(cat image.txt)
@@ -215,15 +291,22 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-data
-          #path: |
-            #time.txt
-            #version-check.py
-            #versions.txt
-            #test.ipynb
-            #./time.txt
-            #./version-check.py
-            #./versions.txt
-            #./test.ipynb
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: time
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vers-check
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vers
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: test
       - name: pull image
         run: |
           IMAGE=$(cat image.txt)
@@ -276,15 +359,22 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-data
-          #path: |
-            #time.txt
-            #version-check.py
-            #versions.txt
-            #test.ipynb
-            #./time.txt
-            #./version-check.py
-            #./versions.txt
-            #./test.ipynb
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: time
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vers-check
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vers
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: test
       - name: pull image
         run: |
           IMAGE=$(cat image.txt)
