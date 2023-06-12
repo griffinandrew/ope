@@ -82,15 +82,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Download artifacts
+      - name: Download image
         uses: actions/download-artifact@v2
         with:
           name: image
-      - name: Download artifacts
+      - name: Download time
         uses: actions/download-artifact@v2
         with:
           name: time
-      - name: Download artifacts
+      - name: Download verson-check.py
         uses: actions/download-artifact@v2
         with:
           name: vers-check
@@ -98,7 +98,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: vers
-      - name: Download artifacts
+      - name: Download versions.txt
         uses: actions/download-artifact@v2
         with:
           name: test
@@ -131,15 +131,15 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download image
         uses: actions/download-artifact@v2
         with:
           name: image
-      - name: Download artifacts
+      - name: Download version-check.py
         uses: actions/download-artifact@v2
         with:
           name: vers-check
-      - name: Download artifacts
+      - name: Download versions.txt
         uses: actions/download-artifact@v2
         with:
           name: vers
@@ -167,11 +167,11 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download image
         uses: actions/download-artifact@v2
         with:
           name: image
-      - name: Download artifacts
+      - name: Download test
         uses: actions/download-artifact@v2
         with:
           name: test
@@ -223,22 +223,19 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download image
         uses: actions/download-artifact@v2
         with:
           name: image
-      - name: Download artifacts
+      - name: Download version-check.py
         uses: actions/download-artifact@v2
         with:
           name: vers-check
-      - name: Download artifacts
+      - name: Download versions.txt
         uses: actions/download-artifact@v2
         with:
           name: vers
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: test
+
       - name: pull image
         run: |
           IMAGE=$(cat image.txt)
@@ -283,12 +280,12 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download image
         uses: actions/download-artifact@v2
         with:
           name: image
 
-      - name: Download artifacts
+      - name: Download time
         uses: actions/download-artifact@v2
         with:
           name: time
