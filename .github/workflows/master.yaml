@@ -49,12 +49,10 @@ jobs:
             version-check.py
             versions.txt
             test.ipynb
-
-            #image.txt
-            #./time.txt
-            #./version-check.py
-            #./versions.txt
-            #./test.ipynb
+            ./time.txt
+            ./version-check.py
+            ./versions.txt
+            ./test.ipynb
 
   health-check:
     needs: setup-and-build
