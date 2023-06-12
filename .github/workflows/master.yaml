@@ -161,11 +161,11 @@ jobs:
           docker pull $IMAGE
       - name: run container
         run: |
-          chmod +x  test.ipynb 
+          chmod +x test.ipynb 
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           docker run -d -p 8888:8888 --name stable $IMAGE
           container_id=$(docker ps -qf "name=stable" | head -n 1)
-          docker cp test.ipynb $container_id:/home/jovyan/work #mount test nb into container
+          docker cp ./test.ipynb $container_id:/home/jovyan/work #mount test nb into container
       - name: Wait for container to start
         run: |
           until docker exec stable jupyter lab --version; do sleep 1; done
@@ -179,6 +179,7 @@ jobs:
           docker exec $container_id pip install nbclient
           docker exec $container_id jupyter lab build --minimize=False
           echo "running notebook"
+          docker exec $container_id ls /home/jovyan/work
           docker exec $container_id jupyter execute /home/jovyan/work/test.ipynb >> ./output.txt
           sleep 5
           HEALTH=$(docker ps --format "{{.Names}}: {{.Status}}" | grep "stable" | awk '{print $2}')
