@@ -43,34 +43,10 @@ USER ${NB_UID}
 # packages. Install Python 3 packages
 #RUN python --version
 
-RUN conda install --quiet --yes conda=23.3.1 --no-pin && \ 
-    conda update ipython && \
-    echo "python: 3.9" >> /opt/conda/.condarc && \ 
-    python --version && \
-
-    #mamba update -n base -c defaults conda -y && \
-    #mamba update mamba -y && \
-RUN conda --version && \
-    mamba --version && \
-    python --version && \
-    #conda remove python && \
-    conda config --show-sources && \
-    #conda config --show-env && \
-    #conda list --show-channel-urls && \ 
-    conda list --explicit && \
-    #conda config --remove python && \
-    mamba install --quiet --yes ${PYTHON_PREREQ_VERSIONS} && \
-    #conda install --quiet --yes python=3.9 --no-pin && \
-    python --version && \
-    #conda config --remove conda-forge/linux-64 python && \
-    #conda config --env --remove channels 'https://conda.anaconda.org/conda-forge/linux-64/python-3.11.3-h2755cc3_0_cpython.conda' && \
-    conda install --yes python=3.9 --no-pin && \ 
-    python --version && \ 
-    mamba install --quiet --yes ${PYTHON_INSTALL_PACKAGES} && \
-    #mamba install --quiet --yes jupyter_highlight_selected_word=0.2.0 && \
+RUN conda install --quiet --yes conda=23.3.1 --python=3.9.16 --no-pin && \ 
+    conda install --quiet --yes ${PYTHON_PREREQ_VERSIONS} && \
+    conda install --quiet --yes ${PYTHON_INSTALL_PACKAGES} && \
     #mamba install --quiet --yes jupyter_contrib_nbextensions=0.7.0 && \
-    #mamba install --quiet --yes jupyter_highlight_selected_word=0.2.0 && \
-    #mamba install --quiet --yes python=3.10 && \
     pip install nbclient==0.5.13 && \
     pip install jupyterlab_rise && \
     fix-permissions "${CONDA_DIR}" && \
