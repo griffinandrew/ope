@@ -2,7 +2,7 @@ name: master test
 on:
   push:
     branches:
-      - base-ope-image
+      - container-base-ope
 
 jobs:
   setup-and-build:
