@@ -24,6 +24,27 @@ jobs:
           mv ./test.ipynb ./test.txt
           mv ./version-check.py ./version-check.txt
           ls
+      - name: upload vers-check
+        uses: actions/upload-artifact@v2
+        with:
+          name: vers-check
+          path: |
+            version-check.txt
+
+      - name: upload vers.txt
+        uses: actions/upload-artifact@v2
+        with:
+          name: vers
+          path: |
+            versions.txt
+
+      - name: upload test
+        uses: actions/upload-artifact@v2
+        with:
+          name: test
+          path: |
+            test.txt
+            
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -57,26 +78,26 @@ jobs:
           path: |
             time.txt
 
-      - name: upload vers-check
-        uses: actions/upload-artifact@v2
-        with:
-          name: vers-check
-          path: |
-            version-check.txt
+      #- name: upload vers-check
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: vers-check
+      #    path: |
+      #      version-check.txt
 
-      - name: upload vers.txt
-        uses: actions/upload-artifact@v2
-        with:
-          name: vers
-          path: |
-            versions.txt
+      #- name: upload vers.txt
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: vers
+      #    path: |
+      #      versions.txt
 
-      - name: upload test
-        uses: actions/upload-artifact@v2
-        with:
-          name: test
-          path: |
-            test.txt
+      #- name: upload test
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: test
+      #    path: |
+      #      test.txt
 
 
   health-check:
