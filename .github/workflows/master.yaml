@@ -86,22 +86,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: image
-      - name: Download time
-        uses: actions/download-artifact@v2
-        with:
-          name: time
-      - name: Download verson-check.py
-        uses: actions/download-artifact@v2
-        with:
-          name: vers-check
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vers
-      - name: Download versions.txt
-        uses: actions/download-artifact@v2
-        with:
-          name: test
 
       - name: pull image
         run: |
