@@ -49,10 +49,3 @@ time.sleep(10)
 
 driver.save_screenshot('rise_screenshot.png')
 print("Saved rise screenshot")
-
-
-
-
-
-
-

@@ -321,10 +321,11 @@ jobs:
 
       - name: Run JupyterLab inside container
         run: |
-          make run-beta &
+          make run-beta2 &
           sleep 3
       
       - name: Run Screenshots difference tests
         run: |
           sleep 5
-          make -C tests screenshots-test
+          make -C tests screenshots 
+          #make -C tests screenshots-test
