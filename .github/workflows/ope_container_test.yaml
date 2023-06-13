@@ -59,6 +59,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium-browser
+          sudo apt-get upgrade chromium-browser
 
       - name: Installing necessary python packages
         run: |
