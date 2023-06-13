@@ -21,9 +21,6 @@ jobs:
           cp tests/test.ipynb ./test.ipynb
           chmod +x ./version-check.py # change perms to execute
           chmod +x ./test.ipynb 
-          #mv ./test.ipynb ./test.txt
-          #mv ./version-check.py ./version-check.txt
-          ls
       - name: upload vers-check
         uses: actions/upload-artifact@v2
         with:
@@ -65,6 +62,16 @@ jobs:
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
           echo "Image = $IMAGE"
           echo $IMAGE > ./image.txt   
+
+      - name: Push beta version
+        run: |
+          REGISTRY=$(cat base/ope_book_registry)
+          REGISTRY_USER=$(cat base/ope_book_user)
+          echo $REGISTRY $REGISTRY_USER
+          docker login $REGISTRY -u $REGISTRY_USER -p $REGISTRY_PASSWORD
+          #docker pull quay.io/gaheyrich/ope:beta-base-ope-image
+          make push
+      
       - name: upload image
         uses: actions/upload-artifact@v2
         with:
@@ -287,8 +294,9 @@ jobs:
 
       - name: pull image
         run: |
-          IMAGE=$(cat image.txt)
-          docker pull $IMAGE 
+          #IMAGE=$(cat image.txt)
+          #docker pull $IMAGE 
+          make pull-beta
 
       - name: extract size and display time and size
         run: |
