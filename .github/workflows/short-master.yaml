@@ -1,4 +1,4 @@
-name: master test
+name: compressed master test
 on:
   push:
     branches:
@@ -78,8 +78,9 @@ jobs:
 
       - name: pull image
         run: |
-          IMAGE=$(cat image.txt)
-          docker pull $IMAGE
+          #IMAGE=$(cat image.txt)
+          #docker pull $IMAGE
+          make pull-beta
 
       - name: check-container-health
         run: |
@@ -117,8 +118,9 @@ jobs:
 
       - name: pull image
         run: |
-          IMAGE=$(cat image.txt)
-          docker pull $IMAGE
+          #IMAGE=$(cat image.txt)
+          #docker pull $IMAGE
+          make pull-beta
 
       - name: check-container-health
         run: |
@@ -150,8 +152,9 @@ jobs:
 
       - name: pull image
         run: |
-          IMAGE=$(cat image.txt)
-          docker pull $IMAGE
+          #IMAGE=$(cat image.txt)
+          #docker pull $IMAGE
+          make pull-beta
       - name: run container
         run: |
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
@@ -206,8 +209,9 @@ jobs:
 
       - name: pull image
         run: |
-          IMAGE=$(cat image.txt)
-          docker pull $IMAGE
+          #IMAGE=$(cat image.txt)
+          #docker pull $IMAGE
+          make pull-beta
       - name: checkout package versions
         run: |
           cp tests/version-check.py ./version-check.py #add python script to compare vers to this file 
