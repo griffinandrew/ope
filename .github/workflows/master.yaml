@@ -21,40 +21,9 @@ jobs:
           cp tests/test.ipynb ./test.ipynb
           chmod +x ./version-check.py # change perms to execute
           chmod +x ./test.ipynb 
+          #mv ./test.ipynb ./test.txt
+          #mv ./version-check.py ./version-check.txt
           ls
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Build
-        run: |
-          start=$(date +%s) #start the timer
-          time make build --silent 
-          end=$(date +%s) #end timer
-          seconds=$((end-start))  #calc build time in sec
-          elapsed=$(echo "scale=2; ($end - $start) / 60.0" | bc) #get time in min with dec
-          min=${elapsed%.*}  #extract min part 
-          sec_cut=${elapsed#*.} #get the decimal 
-          sec_round="${sec_cut:0:1}.${sec_cut:1}"
-          sec=$( echo "$sec_round * 6" | bc -l) #calc sec's
-          echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
-          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
-          echo "Image = $IMAGE"
-          echo $IMAGE > image.txt   
-      - name: upload image
-        uses: actions/upload-artifact@v2
-        with:
-          name: image
-          path: |
-            image.txt
-
-
-      - name: upload time
-        uses: actions/upload-artifact@v2
-        with:
-          name: time
-          path: |
-            time.txt
-
       - name: upload vers-check
         uses: actions/upload-artifact@v2
         with:
@@ -75,6 +44,48 @@ jobs:
           name: test
           path: |
             test.ipynb
+            
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          start=$(date +%s) #start the timer
+          time make build --silent 
+          end=$(date +%s) #end timer
+          seconds=$((end-start))  #calc build time in sec
+          elapsed=$(echo "scale=2; ($end - $start) / 60.0" | bc) #get time in min with dec
+          min=${elapsed%.*}  #extract min part 
+          sec_cut=${elapsed#*.} #get the decimal 
+          sec_round="${sec_cut:0:1}.${sec_cut:1}"
+          sec=$( echo "$sec_round * 6" | bc -l) #calc sec's
+          echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
+          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
+          echo "Image = $IMAGE"
+          echo $IMAGE > image.txt   
+          PERMISSIONS_CHECKSUM=$(make checksum)
+          echo $PERMISSIONS_CHECKSUM > checksum.txt
+      - name: upload image
+        uses: actions/upload-artifact@v2
+        with:
+          name: image
+          path: |
+            image.txt
+
+
+      - name: upload time
+        uses: actions/upload-artifact@v2
+        with:
+          name: time
+          path: |
+            time.txt
+      
+      - name: upload checksum
+        uses: actions/upload-artifact@v2
+        with:
+          name: checksum
+          path: |
+            checksum.txt
 
 
   health-check:
@@ -82,26 +93,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Download artifacts
+      - name: Download image
         uses: actions/download-artifact@v2
         with:
           name: image
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: time
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vers-check
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vers
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: test
 
       - name: pull image
         run: |
@@ -131,18 +126,11 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download image
         uses: actions/download-artifact@v2
         with:
           name: image
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vers-check
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vers
+
       - name: pull image
         run: |
           IMAGE=$(cat image.txt)
@@ -150,6 +138,7 @@ jobs:
 
       - name: check-container-health
         run: |
+
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get just built image
           echo "IMAGE = $IMAGE"
           docker run -d --name stable $IMAGE
@@ -167,11 +156,11 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download image
         uses: actions/download-artifact@v2
         with:
           name: image
-      - name: Download artifacts
+      - name: Download test
         uses: actions/download-artifact@v2
         with:
           name: test
@@ -181,12 +170,11 @@ jobs:
           docker pull $IMAGE
       - name: run container
         run: |
-          pip install jupytext
-          chmod +x  test.ipynb 
+          chmod +x test.ipynb 
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-          docker run -d -p 8888:8888 --name stable $IMAGE
+          docker run -d -p 8888:8888 --name stable -v /test.ipynb:/home/jovyan/work $IMAGE
           container_id=$(docker ps -qf "name=stable" | head -n 1)
-          docker cp test.ipynb $container_id:/home/jovyan/work #mount test nb into container
+          docker cp ./test.ipynb $container_id:/home/jovyan/work #mount test nb into container
       - name: Wait for container to start
         run: |
           until docker exec stable jupyter lab --version; do sleep 1; done
@@ -200,6 +188,7 @@ jobs:
           docker exec $container_id pip install nbclient
           docker exec $container_id jupyter lab build --minimize=False
           echo "running notebook"
+          docker exec $container_id ls /home/jovyan/work
           docker exec $container_id jupyter execute /home/jovyan/work/test.ipynb >> ./output.txt
           sleep 5
           HEALTH=$(docker ps --format "{{.Names}}: {{.Status}}" | grep "stable" | awk '{print $2}')
@@ -223,22 +212,19 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download image
         uses: actions/download-artifact@v2
         with:
           name: image
-      - name: Download artifacts
+      - name: Download version-check.py
         uses: actions/download-artifact@v2
         with:
           name: vers-check
-      - name: Download artifacts
+      - name: Download versions.txt
         uses: actions/download-artifact@v2
         with:
           name: vers
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: test
+
       - name: pull image
         run: |
           IMAGE=$(cat image.txt)
@@ -263,13 +249,17 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+      - name: Download checksum
+        uses: actions/download-artifact@v2
+        with:
+          name: checksum
       - name: run checksum #creates var with checksum value to be compared 
         run: |
-          PERMISSIONS_CHECKSUM=$(make checksum)
+          PERMISSIONS_CHECKSUM=$(cat checksum.txt)
           SUM=$PERMISSIONS_CHECKSUM
           QUICK_TRIM=${SUM::64} #quick_trim is used to get rid of the tailing "-" after the checksum
           echo $QUICK_TRIM
-          CHECKSUM=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+          CHECKSUM=ea84c0790d2cdd4474a960894895397b4c957e30ac05c22d39cd1098ecd393cb
           if [[ "$QUICK_TRIM" == "$CHECKSUM" ]]; then
             echo "******SUCCESS********" 
           else 
@@ -283,12 +273,12 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download image
         uses: actions/download-artifact@v2
         with:
           name: image
 
-      - name: Download artifacts
+      - name: Download time
         uses: actions/download-artifact@v2
         with:
           name: time
