@@ -274,7 +274,7 @@ jobs:
 
   UI-Test:
     runs-on: ubuntu-latest #use the latest ubuntu container image
-    needs: build
+    needs: setup-and-build
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
