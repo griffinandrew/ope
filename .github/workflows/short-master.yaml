@@ -282,8 +282,11 @@ jobs:
             echo "*******FAILURE*******"
             echo "image checksum: $QUICK_TRIM"
             echo "correct checksum: $CHECKSUM"
-            exit 1
+            #exit 1
           fi
+          
+          echo "using make checksum-test"
+          make -C tests checksum-test
 
   size-time:
     needs: setup-and-build
