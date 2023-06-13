@@ -55,6 +55,7 @@ jobs:
           end=$(date +%s) #end timer
           PERMISSIONS_CHECKSUM=$(make checksum)
           echo $PERMISSIONS_CHECKSUM > ./checksum.txt
+          cat ./checksum.txt
           seconds=$((end-start))  #calc build time in sec
           elapsed=$(echo "scale=2; ($end - $start) / 60.0" | bc) #get time in min with dec
           min=${elapsed%.*}  #extract min part 
@@ -102,6 +103,9 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+      
+      - name: Checkout the code
+        uses: actions/checkout@v3
 
       - name: Download image
         uses: actions/download-artifact@v2
@@ -138,6 +142,10 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
       - name: Download image
         uses: actions/download-artifact@v2
         with:
@@ -168,6 +176,9 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
       - name: Download image
         uses: actions/download-artifact@v2
         with:
@@ -224,6 +235,10 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+      
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
       - name: Download image
         uses: actions/download-artifact@v2
         with:
@@ -261,6 +276,9 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
       - name: Download checksum
         uses: actions/download-artifact@v2
         with:
@@ -285,6 +303,9 @@ jobs:
     needs: setup-and-build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
       - name: Download image
         uses: actions/download-artifact@v2
         with:
