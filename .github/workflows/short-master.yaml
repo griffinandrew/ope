@@ -315,6 +315,14 @@ jobs:
         run: |
           sleep 5
           make -C tests rise-test
+
+      #the thought is bc of all the button clicking in the rise extensions when it gets to next test not at the correct point
+      #so rerun jup in the container and should be in the same interface as in rise-tests
+
+      - name: Run JupyterLab inside container
+        run: |
+          make run-beta &
+          sleep 3
       
       - name: Run Screenshots difference tests
         run: |
