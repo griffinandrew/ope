@@ -15,7 +15,6 @@ token = sys.argv[1]
 url = "http://127.0.0.1:8888/lab?token=" + token
 chrome_options = Options()
 
-driver = webdriver.Chrome(ChromeDriverManager().install())
 
 if platform.system() == 'Windows' or platform.system() == 'Darwin':
     chrome_options.add_experimental_option('detach', True)
