@@ -4,6 +4,9 @@ on:
     branches:
       - container-base-ope
 
+env:
+    REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+
 jobs:
   setup-and-build:
     runs-on: ubuntu-latest
