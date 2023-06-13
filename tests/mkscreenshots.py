@@ -22,7 +22,9 @@ if platform.system() == 'Windows' or platform.system() == 'Darwin':
     driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager().install()), options=chrome_options)
 elif platform.system() == 'Linux':
     chrome_options.add_argument('--headless') # Inorder for Action to run, it needs to be headless
-    driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()), options=chrome_options)
+    driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager().install(), chrome_type=ChromeType.GOOGLE), options=chrome_options)
+    #add this from rise_test bc complaining about version of chrome in this test now
+    #driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()), options=chrome_options)
 else:
     print("Unknown OS")
     exit(1)

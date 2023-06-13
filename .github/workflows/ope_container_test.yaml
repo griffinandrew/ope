@@ -69,8 +69,6 @@ jobs:
           pip install --upgrade webdriver_manager
           chromedriver --version
 
-
-
       - name: Pull beta-version
         run: |
           make pull-beta
