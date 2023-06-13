@@ -53,6 +53,8 @@ jobs:
           start=$(date +%s) #start the timer
           time make build --silent 
           end=$(date +%s) #end timer
+          PERMISSIONS_CHECKSUM=$(make checksum)
+          echo $PERMISSIONS_CHECKSUM > ./checksum.txt
           seconds=$((end-start))  #calc build time in sec
           elapsed=$(echo "scale=2; ($end - $start) / 60.0" | bc) #get time in min with dec
           min=${elapsed%.*}  #extract min part 
@@ -62,9 +64,7 @@ jobs:
           echo "BUILD TIME:  $min MIN $sec SECS  or  $seconds seconds" > ./time.txt #send to file for use in diff run
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1) #get built image
           echo "Image = $IMAGE"
-          echo $IMAGE > image.txt   
-          PERMISSIONS_CHECKSUM=$(make checksum)
-          echo $PERMISSIONS_CHECKSUM > checksum.txt
+          echo $IMAGE > ./image.txt   
       - name: upload image
         uses: actions/upload-artifact@v2
         with:
