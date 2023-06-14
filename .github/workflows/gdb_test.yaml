@@ -1,4 +1,4 @@
-name: checksum
+name: gdb test
 on:
   push:
     branches: container-base-ope
@@ -21,6 +21,7 @@ jobs:
         run: |
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
           docker run -d --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name stable $IMAGE
+          docker exec stable apt-get update && apt-get install -y gdb
           docker exec stable gdb -ex "python import sys; sys.path.append('.')" -ex "python import my_script" -ex "break my_script.divide" -ex "run" -ex "next" -ex "next" -ex "continue" -ex "set logging on my_gdb_output.txt" -ex "continue" -ex "quit"
           docker exec stable realpath my_gdb_output.txt
           docker cp stable:/home/jovyan/work/my_gdb_output.txt
