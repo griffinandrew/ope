@@ -22,7 +22,7 @@ jobs:
         run: |
 
          IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-         docker run -d --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v tests/gdb_test_file.py:/home/jovyan/work --name stable $IMAGE
+         docker run -d --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v /gdb_test_file.py:/home/jovyan/work --name stable $IMAGE
          echo "finished run"
          container_id=$(docker ps -qf "name=stable" | head -n 1)
          echo "about to copy"
