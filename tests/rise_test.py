@@ -32,6 +32,8 @@ driver.get(url)
 
 driver.implicitly_wait(10)
 
+main_window_handle = driver.current_window_handle
+
 new_nb_button = driver.find_element(By.XPATH, '//div[@data-category="Notebook"]')
 print("Found new notebook button")
 new_nb_button.click()
@@ -48,3 +50,8 @@ is_fullscreen = driver.execute_script("return document.fullscreenElement !== nul
 print("fullscreen button is functioning")
 
 print("Rise Extension is working!")
+
+print("returning to homepage")
+
+driver.switch_to.window(main_window_handle)
+driver.refresh()
