@@ -16,13 +16,14 @@ jobs:
           pip install -r requirements/requirements.txt    
       - name: pull image (hard) # makes the container image build and then creates var with checksum value to be compared 
         run: |
-          docker pull quay.io/gaheyrich/ope:beta-base-ope-image
+          make build # using this to install gdb within the container and
+          #docker pull quay.io/gaheyrich/ope:beta-base-ope-image
       - name: run gdb #creates var with checksum value to be compared 
         run: |
           IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-          #docker run -d --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name stable $IMAGE
-          docker run -d --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --privileged --name stable $IMAGE
-          docker exec --user=root stable apt-get update && apt-get install -y gdb
+          docker run -d --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name stable $IMAGE
+          #docker run -d --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --privileged --name stable $IMAGE
+          #docker exec --user=root stable apt-get update && apt-get install -y gdb
           docker exec stable gdb -ex "python import sys; sys.path.append('.')" -ex "python import my_script" -ex "break my_script.divide" -ex "run" -ex "next" -ex "next" -ex "continue" -ex "set logging on my_gdb_output.txt" -ex "continue" -ex "quit"
           docker exec stable realpath my_gdb_output.txt
           docker cp stable:/home/jovyan/work/my_gdb_output.txt
