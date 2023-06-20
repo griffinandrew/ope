@@ -2,7 +2,7 @@ name: compressed master test
 on:
   push:
     branches:
-      - container-base-ope
+      - "*"
 
 env:
     REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}

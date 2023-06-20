@@ -3,7 +3,7 @@ name: OPE Container Test
 on:
   push:
     branches: 
-      - 'container*'
+      - '*'
 
 env:
     REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
@@ -62,13 +62,8 @@ jobs:
           sudo apt-get upgrade chromium-browser
 
       - name: Installing necessary python packages
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r tests/requirements.txt
-          pip install --upgrade selenium
-          pip install --upgrade webdriver_manager
-          chromedriver --version
-
+        run: pip install selenium webdriver_manager jupyterlab
+          
       - name: Pull beta-version
         run: |
           make pull-beta
@@ -80,13 +75,10 @@ jobs:
 
       - name: Run RISE extension tests
         run: |
-          sleep 3
-          make -C tests rise-test
-      
-      - name: Run Screenshots difference tests
-        run: |
-          sleep 5
-          make -C tests screenshots-test
+          container_id=$(docker ps -q | head -n 1)
+          echo $container_id
+          token=$(docker exec $container_id jupyter lab list 2>&1 | grep -o "token=[^ ]*" | cut -d= -f2)
+          python3 tests/rise_click.py $token
   
   Image-Test:
     runs-on: ubuntu-latest #use the latest ubuntu container image
@@ -112,8 +104,8 @@ jobs:
   #   - name: manual approve
   #     run: |
   #         echo "Publication approved"
-  
-  # Publish:
+
+  # publish:
   #   runs-on: ubuntu-latest #use the latest ubuntu container image
   #   needs: approval
   #   steps:
